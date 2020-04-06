@@ -18,6 +18,10 @@ firstX5  dw 0
 secondX5 dw 10
 firstY5  dw 0
 secondY5 dw 10
+txtX dw 0
+txtXB db 0
+txtY dw 0
+txtYB db 0
 ;========================== CIRCLE 
 x dw ? ; center x --- just experimenting with circles.
 y dw ? ; center y
@@ -38,14 +42,24 @@ yplusx dw 0
 yminusx dw 0
 ;========================== CIRCLE 
 CODESEG
-
+ignoreOrNo macro x1, x2
+local comp, ignore, no
+comp:	
+	mov ax, x1
+	cmp ax, x2
+	jne no
+	ignore:
+			;;If X and Y are equal, ignore this action and go back to input check
+			;;Since using the rect macro on a rectagle whose size is zero causes problems.
+			jmp check 
+	no:
+endm 
 swapOrNo macro x1, x2
 local comp, ignore, dont, switchThem
 	comp:
 		mov ax, x1
 		cmp ax, x2
 		jb dont
-		je ignore
 	switchThem:
 		;;Drawing must be done UP->DOWN   LEFT->RIGHT.
 		;;If second chord (X or Y) smaller than the first, swap them.    
@@ -65,10 +79,6 @@ local comp, ignore, dont, switchThem
 		pop bx
 		mov x1, ax
 		mov x2, bx
-	ignore:
-		;;If X and Y are equal, ignore this action and go back to input check
-        ;;Since using the rect macro on a rectagle whose size is zero causes problems.
-		jmp check 
 	dont:
 endm
 ;changeOrNo macro x1, x2
@@ -426,7 +436,7 @@ clear_row macro row
     int 10h
 endm
 get_input macro
-    local check, save, escape, adjust, bgup, bgdown, fgup, fgdown, clearAll, firstCoord, circle
+    local check, save, escape, adjust, bgup, bgdown, fgup, fgdown, clearAll, firstCoord, circle, txt
 	escape:
         mov ah, 06h     ;;Check keyboard buffer for input
         mov dl, 255     ;Entry: DL = character (except FFh)
@@ -443,7 +453,9 @@ get_input macro
         cmp al, 4Bh     ;;Left  4Bh
         je fgdown       
 		cmp al, 8h		;;BackSpace
-		je  clearAll	;;0Dh
+		je clearAll	    ;;0Dh
+		cmp al, 77h     ;;Text 77h W
+		je outOfRangeText
 		cmp al, 63h		;;Circle C
 		je outOfRangeCircle
 		cmp al, 6Ch     ;;firstCoord L
@@ -481,6 +493,8 @@ get_input macro
         fbound1:
             mov [bx], 1
             jmp check
+	outOfRangeText:
+		jmp oufOfRangeText2
 	outOfRangeCircle:
 		jmp circle ;;avoid jmp out of range err
 	outOfRangeLine1:
@@ -505,6 +519,8 @@ get_input macro
 		mov firstX, cx
 		mov firstY, dx
 		jmp check
+	oufOfRangeText2:
+		jmp txt
 	circle:
 		mov ax, 03h ;INT 33,3 - Get Mouse Position(CX,DX) and Button Status(BX)
 		int 33h ;;CX = X || DX = Ys
@@ -528,6 +544,8 @@ get_input macro
 		mov secondY, dx
 		swapOrNo firstX, secondX ;;Refer to macro definition for explanation
 		swapOrNo firstY, secondY ;;Refer to macro definition for explanation
+		ignoreOrNo firstX, secondX ;;Refer to macro definition for explanation
+		ignoreOrNo firstY, secondY ;;Refer to macro definition for explanation
 		push firstX
 		push secondX
 		push firstY
@@ -549,9 +567,12 @@ get_input macro
 		add firstY, 5
 		add secondY, 5
 		jmp check
+	txt:
+		
+		jmp check
 	check:          ;;Check for mouse input
         print_brush_color
-        mov ax, 0003h  ;INT33h, 3h  Get Mouse Position and Button Status
+        mov ax, 03h  ;INT33h, 3h  Get Mouse Position and Button Status
         int 33h ;INT 33 - Mouse Function Calls
         cmp bx, 1
         je save
