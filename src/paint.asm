@@ -436,7 +436,7 @@ clear_row macro row
     int 10h
 endm
 get_input macro
-    local check, save, escape, adjust, bgup, bgdown, fgup, fgdown, clearAll, firstCoord, circle, txt
+    local check, save, escape, adjust, bgup, bgdown, fgup, fgdown, clearAll, firstCoord, circle
 	escape:
         mov ah, 06h     ;;Check keyboard buffer for input
         mov dl, 255     ;Entry: DL = character (except FFh)
@@ -454,8 +454,6 @@ get_input macro
         je fgdown       
 		cmp al, 8h		;;BackSpace
 		je clearAll	    ;;0Dh
-		cmp al, 77h     ;;Text 77h W
-		je outOfRangeText
 		cmp al, 63h		;;Circle C
 		je outOfRangeCircle
 		cmp al, 6Ch     ;;firstCoord L
@@ -567,9 +565,6 @@ get_input macro
 		add firstY, 5
 		add secondY, 5
 		jmp check
-	txt:
-		
-		jmp check
 	check:          ;;Check for mouse input
         print_brush_color
         mov ax, 03h  ;INT33h, 3h  Get Mouse Position and Button Status
@@ -592,7 +587,6 @@ draw endp
 start:
     mov ax, @data
     mov ds, ax
-
     call init
 	mov ah, 00h ;;check if theres input, then call Draw.
     int 16h
