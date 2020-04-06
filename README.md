@@ -7,17 +7,16 @@ This is a simplified version of [MS Paint](https://support.microsoft.com/en-us/h
 
 These instructions will get you a copy of the project up and running on your local machine.
 
-1) Download and install [Dosbox](https://filehippo.com/download_dosbox/). You should now have `C:\TASM\BIN\`.
+1) Download and install [Dosbox](https://filehippo.com/download_dosbox/).
 
-2) Download and install the correct version of [7zip](https://www.7-zip.org/) for your machine.
+2) Download and install the correct version of [winrar](https://www.win-rar.com/download.html?&L=0) for your machine.
 
-3) Download the project as a zip file, and extract it using [7zip](https://www.7-zip.org/) in `C:\TASM\BIN\`.\
-The folder `C:\TASM\BIN\src` Should now have the files: 
+3) Download TASM.rar, and extract it using [winrar](https://www.7-zip.org/) in your `C:` drive.\
+The folder `C:\TASM\BIN\` Should now have the files: 
     * intro.asm
     * paint.asm
     * r.bat\
-![](https://cdn.discordapp.com/attachments/348067542881009665/696698821387747358/unknown.png)
-Take those 3 files out to `C:\TASM\BIN`.
+![](https://cdn.discordapp.com/attachments/348067542881009665/696717685857321070/unknown.png)
 
 4) Open Dosbox, and type in the console:
     ```
@@ -26,13 +25,13 @@ Take those 3 files out to `C:\TASM\BIN`.
     cd tasm
     cd bin
     cycles = max
-    r paint.asm
+    paint.asm
 then press f9 to run the program.
 ### Prerequisites
 [Dosbox](https://filehippo.com/download_dosbox/)\
-[7zip](https://www.7-zip.org/)
+[winrar](https://www.win-rar.com/download.html?&L=0)
 ## Functionality
-![Logo][1]
+![Instructions][1]
 
 [1]: https://cdn.discordapp.com/attachments/348067542881009665/696687324712534097/unknown.png
 Screen after running the program.
