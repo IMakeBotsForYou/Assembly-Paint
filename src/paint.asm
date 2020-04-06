@@ -461,8 +461,6 @@ get_input macro
 		cmp al, 74h
 		je outOfRangeLine2
 		jmp check
-	jmpToExit1:
-		jmp jmpToExit
 	clearAll: ;750 500 |||| 320 200
 		rectangle 0, 0, 750, 0, 500 ;;clear screen
 		jmp check
@@ -491,8 +489,6 @@ get_input macro
         fbound1:
             mov [bx], 1
             jmp check
-	outOfRangeText:
-		jmp oufOfRangeText2
 	outOfRangeCircle:
 		jmp circle ;;avoid jmp out of range err
 	outOfRangeLine1:
@@ -517,8 +513,6 @@ get_input macro
 		mov firstX, cx
 		mov firstY, dx
 		jmp check
-	oufOfRangeText2:
-		jmp txt
 	circle:
 		mov ax, 03h ;INT 33,3 - Get Mouse Position(CX,DX) and Button Status(BX)
 		int 33h ;;CX = X || DX = Ys
