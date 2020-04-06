@@ -16,7 +16,7 @@ The folder `C:\TASM\BIN\` Should now have the files:
     * intro.asm
     * paint.asm
     * r.bat\
-![](https://cdn.discordapp.com/attachments/348067542881009665/696698339911139388/unknown.png)
+![](https://cdn.discordapp.com/attachments/348067542881009665/696698821387747358/unknown.png)
 4) Open Dosbox, and type in the console:
     ```mount c: c/
     c:
