@@ -444,15 +444,15 @@ get_input macro
         je fgup
         cmp al, 4Bh     ;;Left  4Bh
         je fgdown       
-		cmp al, 8h		;;BackSpace
-		je clearAll	    ;;0Dh
-		cmp al, 63h		;;Circle C
-		je outOfRangeCircle
-		cmp al, 6Ch     ;;firstCoord L
-		je outOfRangeLine1
-		cmp al, 74h
-		je outOfRangeLine2
-		jmp check
+	cmp al, 8h		;;BackSpace
+	je clearAll	    ;;0Dh
+	cmp al, 63h		;;Circle C
+	je outOfRangeCircle
+	cmp al, 6Ch     ;;firstCoord L
+	je outOfRangeLine1
+	cmp al, 74h
+	je outOfRangeLine2
+	jmp check
 	clearAll: ;750 500 |||| 320 200
 		rectangle 0, 0, 750, 0, 500 ;;clear screen
 		jmp check
