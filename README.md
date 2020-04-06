@@ -14,10 +14,9 @@ These instructions will get you a copy of the project up and running on your loc
 3) Download the project as a zip file, and extract it using [7zip](https://www.7-zip.org/) in `C:\TASM\BIN\`.\
 The folder `C:\TASM\BIN\` Should now have the files: 
     * intro.asm
-    * line.asm
     * paint.asm
     * r.bat\
-![](https://cdn.discordapp.com/attachments/348067542881009665/696686300606103582/unknown.png)
+![](https://cdn.discordapp.com/attachments/348067542881009665/696698339911139388/unknown.png)
 4) Open Dosbox, and type in the console:
     ```mount c: c/
     c:
