@@ -31,7 +31,7 @@ The folder `C:\TASM\BIN\` Should now have the files:
 ![](https://cdn.discordapp.com/attachments/348067542881009665/696717685857321070/unknown.png)
 
 4) Open Dosbox, and type in the console:
-    
+    ```
     mount c: c:/
     c:
     cd tasm
