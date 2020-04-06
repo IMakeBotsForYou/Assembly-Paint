@@ -23,7 +23,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 2) Download and install the correct version of [winrar](https://www.win-rar.com/download.html?&L=0) for your machine.
 
-3) Download [TASM.rar](https://github.com/IMakeBotsForYou/Assembly-Paint/blob/master/TASM.rar), and extract it using [winrar](https://www.7-zip.org/) in your `C:` drive.\
+3) Download [TASM.rar](/IMakeBotsForYou/Assembly-Paint/raw/master/TASM.rar), and extract it using [winrar](https://www.7-zip.org/) in your `C:` drive.\
 The folder `C:\TASM\BIN\` Should now have the files: 
     * intro.asm
     * paint.asm
