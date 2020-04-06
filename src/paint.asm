@@ -501,59 +501,59 @@ get_input macro
 		jmp check
 	;==============================================================================
 	;==============================================================================
-	firstCoord:
-		mov ax, 03h ;INT 33,3 - Get Mouse Position(CX,DX) and Button Status(BX)
-		int 33h ;;CX = X || DX = Ys
-		mov firstX, cx
-		mov firstY, dx
-		jmp check
-	circle:
-		mov ax, 03h ;INT 33,3 - Get Mouse Position(CX,DX) and Button Status(BX)
-		int 33h ;;CX = X || DX = Ys
-		mov x, cx
-		mov y, dx ;;reset everything
-		mov r, 20              
-		DrawCircle fgcolor, x, y, r
-		reset
-		;mov y, dx ;;reset everything
-		jmp check
-	jmpToExit:
-		jmp exit
-	secondCoord:
-		mov ah, 06h     ;;Check keyboard buffer for input
-		mov dl, 255     ;Entry: DL = character (except FFh)
-		int 21h 		;Return: AL = character output (note to self)
-		cmp al, 6Ch		;shouldnt do anything special as the character is already L but it doesnt do anything wihtout it so here it stays.
-		mov ax, 03h ;INT 33,3 - Get Mouse Position(CX,DX) and Button Status(BX)
-		int 33h ;;CX = X || DX = Ys
-		mov secondX, cx
-		mov secondY, dx
-		swapOrNo firstX, secondX ;;Refer to macro definition for explanation
-		swapOrNo firstY, secondY ;;Refer to macro definition for explanation
-		ignoreOrNo firstX, secondX ;;Refer to macro definition for explanation
-		ignoreOrNo firstY, secondY ;;Refer to macro definition for explanation
-		push firstX
-		push secondX
-		push firstY
-		push secondY
-		sub firstX, 5
-		sub secondX, 5
-		sub firstY, 5
-		sub secondY, 5
-		pop secondY5
-		pop firstY5
-		pop secondX5
-		pop firstX5
-		rectangle fgcolor, firstX, secondX, firstY, firstY5
-		rectangle fgcolor, secondX, secondX5, firstY, secondY
-		rectangle fgcolor, firstX, secondX5, secondY, secondY5
-		rectangle fgcolor, firstX, firstX5, firstY, secondY5
-		add firstX, 5
-		add secondX, 5 ;;RESET THEIR VALUES
-		add firstY, 5
-		add secondY, 5
-		jmp check
-	check:          ;;Check for mouse input
+    firstCoord:
+	mov ax, 03h ;INT 33,3 - Get Mouse Position(CX,DX) and Button Status(BX)
+	int 33h ;;CX = X || DX = Ys
+	mov firstX, cx
+	mov firstY, dx
+	jmp check
+    circle:
+	mov ax, 03h ;INT 33,3 - Get Mouse Position(CX,DX) and Button Status(BX)
+	int 33h ;;CX = X || DX = Ys
+	mov x, cx
+	mov y, dx ;;reset everything
+	mov r, 20              
+	DrawCircle fgcolor, x, y, r
+	reset
+	;mov y, dx ;;reset everything
+	jmp check
+    jmpToExit:
+	jmp exit
+    secondCoord:
+	mov ah, 06h     ;;Check keyboard buffer for input
+	mov dl, 255     ;Entry: DL = character (except FFh)
+	int 21h 		;Return: AL = character output (note to self)
+	cmp al, 6Ch		;shouldnt do anything special as the character is already L but it doesnt do anything wihtout it so here it stays.
+	mov ax, 03h ;INT 33,3 - Get Mouse Position(CX,DX) and Button Status(BX)
+	int 33h ;;CX = X || DX = Ys
+	mov secondX, cx
+	mov secondY, dx
+	swapOrNo firstX, secondX ;;Refer to macro definition for explanation
+	swapOrNo firstY, secondY ;;Refer to macro definition for explanation
+	ignoreOrNo firstX, secondX ;;Refer to macro definition for explanation
+	ignoreOrNo firstY, secondY ;;Refer to macro definition for explanation
+	push firstX
+	push secondX
+	push firstY
+	push secondY
+	sub firstX, 5
+	sub secondX, 5
+	sub firstY, 5
+	sub secondY, 5
+	pop secondY5
+	pop firstY5
+	pop secondX5
+	pop firstX5
+	rectangle fgcolor, firstX, secondX, firstY, firstY5
+	rectangle fgcolor, secondX, secondX5, firstY, secondY
+	rectangle fgcolor, firstX, secondX5, secondY, secondY5
+	rectangle fgcolor, firstX, firstX5, firstY, secondY5
+	add firstX, 5
+	add secondX, 5 ;;RESET THEIR VALUES
+	add firstY, 5
+	add secondY, 5
+	jmp check
+    check:          ;;Check for mouse input
         print_brush_color
         mov ax, 03h  ;INT33h, 3h  Get Mouse Position and Button Status
         int 33h ;INT 33 - Mouse Function Calls
@@ -566,8 +566,8 @@ endm
 draw proc
     check:
         get_input
-		mov ax, 03h
-		int 33h
+	    mov ax, 03h
+	    int 33h
         paint cx, dx
         jmp check
     ret
