@@ -46,7 +46,7 @@ Draw a circle, whose center is the position of the mouse: `C`
 To clear the screen, simply press `Backspace`
 
 ### Rectangle
-To set the coordinates of the first corner: `L`
+To set the coordinates of the first corner: `L`\
 To set the coordinates of the second corner and draw the rectangle: `T`
 
 ### Clear screen
