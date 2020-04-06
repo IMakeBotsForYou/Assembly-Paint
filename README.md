@@ -3,15 +3,15 @@
 Dan Lvov's final project for programming in the Assembly8086 language.\
 This is a simplified version of [MS Paint](https://support.microsoft.com/en-us/help/4027410/windows-10-open-microsoft-paint).
 ## Table of content
-- [Getting Started](#Getting Started)
+- [Getting Started](#Getting-Started)
 - [Prerequisites](#Prerequisites)
 - [Functionality](#Functionality)
     - [Colors](#CiColorsrcle)
     - [Circle](#Circle)
     - [Rectangle](#Rectangle)
-    - [Clear screen](#Clear screen)
+    - [Clear screen](#Clear-screen)
     - [Exit](#Exit)
-- [Flow Chart](#Flow Chart)
+- [Flow Chart](#Flow-Chart)
 - [Author](#Author)
 - [Acknowledgments](#Acknowledgments)
 
