@@ -57,7 +57,7 @@ To exit the program: `ESC`
 
 ###
 ## Author
-**Dan Lvov**, sophomore of De Shalit high school.
+**Dan Lvov**, of De Shalit high school.
 
 ## Acknowledgments
 **Hat tip to all contributors, whose code snippets and help are tremendously appreciated**
