@@ -68,8 +68,8 @@ swapOrNo macro x1, x2
 		cmp ax, x2
 		jl dont
 	switchThem:
-		push x2
-		mov x2, ax
+		push x2 ;;x1 already in AX
+		mov x2, ax 
 		pop x1
 	dont:
 endm
