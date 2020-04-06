@@ -21,7 +21,7 @@ Take those 3 files out to `C:\TASM\BIN`.
 
 4) Open Dosbox, and type in the console:
     ```
-    mount c: c/
+    mount c: c:/
     c:
     cd tasm
     cd bin
