@@ -18,10 +18,7 @@ firstX5  dw 0
 secondX5 dw 10
 firstY5  dw 0
 secondY5 dw 10
-txtX dw 0
-txtXB db 0
-txtY dw 0
-txtYB db 0
+
 ;========================== CIRCLE 
 x dw ? ; center x --- just experimenting with circles.
 y dw ? ; center y
@@ -54,31 +51,26 @@ comp:
 			jmp check 
 	no:
 endm 
+;##########Pseudocode#########
+;temp = number1;
+;number1 = number2;
+;number2 = temp;
+;##########Pseudocode#########
+
+;;Drawing must be done UP->DOWN   LEFT->RIGHT.
+;;If second chord (X or Y) smaller than the first, swap them.    
+;;This guarantees that the drawing wont crash the program
+;;While still drawing at the same location.
 swapOrNo macro x1, x2
-local comp, ignore, dont, switchThem
+	local comp, dont, switchThem
 	comp:
 		mov ax, x1
 		cmp ax, x2
-		jb dont
+		jl dont
 	switchThem:
-		;;Drawing must be done UP->DOWN   LEFT->RIGHT.
-		;;If second chord (X or Y) smaller than the first, swap them.    
-		;;This guarantees that the drawing wont crash the program
-        ;;While still drawing at the same location.
-		
-		;##########Pseudocode#########
-		;temp = number1;
-		;number1 = number2;
-		;number2 = temp;
-		;##########Pseudocode#########
-		
-		mov ax, x1
-		mov bx, x2
-		push ax
-		mov ax, bx
-		pop bx
-		mov x1, ax
-		mov x2, bx
+		push x2
+		mov x2, ax
+		pop x1
 	dont:
 endm
 ;changeOrNo macro x1, x2
@@ -489,6 +481,8 @@ get_input macro
         fbound1:
             mov [bx], 1
             jmp check
+	jmpToExit1:
+		jmp jmpToExit
 	outOfRangeCircle:
 		jmp circle ;;avoid jmp out of range err
 	outOfRangeLine1:
