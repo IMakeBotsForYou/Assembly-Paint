@@ -178,12 +178,12 @@ DrawCircle macro color, circleCenterX, circleCenterY, radius
     CompareVariableAndNumber balance, 0
     jl balance_negative
     ;balance_positive:
-    DecVar yoff
+    dec yoff
     
     Sub3NumbersAndAssign balance, balance, yoff, yoff
     
     balance_negative:
-    IncVar xoff
+    inc xoff
     
     ;C# Code
     ;         while (xoff <= yoff)
@@ -207,20 +207,6 @@ endm
 Negate macro a
     mov ax, a
     neg ax
-    mov a, ax    
-endm
-;========================== CIRCLE 
-;a = a+1 
-IncVar macro a
-    mov ax, a
-    inc ax
-    mov a, ax    
-endm
-;========================== CIRCLE 
-;a = a-1 
-DecVar macro a
-    mov ax, a
-    dec ax
     mov a, ax    
 endm
 ;========================== CIRCLE 
