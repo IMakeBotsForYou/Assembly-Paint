@@ -65,7 +65,9 @@ To clear the screen:`BackSpace`
 To exit the program: `ESC`
 
 ## Flow Chart
-Coming soon.
+A flowchart is a type of diagram that represents a workflow or process.\
+The flow chart demonstrates how the code jumps between processes and how it functions.\
+[Download](https://github.com/IMakeBotsForYou/Assembly-Paint/raw/master/DanPaint.pdf) the flow chart as PDF.
 
 ## Author
 **Dan Lvov**, of De Shalit high school.
