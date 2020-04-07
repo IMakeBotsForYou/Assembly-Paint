@@ -175,7 +175,7 @@ DrawCircle macro color, circleCenterX, circleCenterY, radius
     ;            }
     ; 
     ;            xoff = xoff + 1;
-    CompareVariableAndNumber balance, 0
+    Compare2Variables balance, 0
     jl balance_negative
     ;balance_positive:
     dec yoff
@@ -211,12 +211,6 @@ Negate macro a
 endm
 ;========================== CIRCLE 
 Compare2Variables macro a, b
-    mov cx, a
-    cmp cx, b
-endm
-
-;========================== CIRCLE 
-CompareVariableAndNumber macro a, b
     mov cx, a
     cmp cx, b
 endm
