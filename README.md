@@ -56,6 +56,8 @@ Draw a circle, whose center is the position of the mouse: `C`
 
 ### Rectangle
 Set corners for rectangle, and draw it. `L`
+### Diagonal
+Set ends of diagonal line, and draw it. `D`
 ### Clear screen
 To clear the screen:`BackSpace`
 
