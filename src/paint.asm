@@ -7,6 +7,8 @@ bgcolor db 0 ;Default bg color is black.
 fgcolor db 4 ;Default brush color is red.
 fgtitle db ' Current Brush:$'
 include intro.asm
+;include second.asm
+;include first.asm
 firstX  dw 0
 secondX dw 10
 firstY  dw 0
@@ -15,7 +17,9 @@ firstX5  dw 0
 secondX5 dw 10
 firstY5  dw 0
 secondY5 dw 10
-
+coordsGot db 0
+yChange dw ?
+xChange dw ?
 ;========================== CIRCLE 
 x dw ? ; center x --- just experimenting with circles.
 y dw ? ; center y
@@ -119,44 +123,43 @@ DrawCircle macro color, circleCenterX, circleCenterY, radius
     ;C# Code
     ;        DrawPixel(circleCenterX + yoff, circleCenterY - xoff);
     ; part 1 from angle 0 to 45 counterclockwise
-    DrawPixel color, xplusy, yminusx
+    paint xplusy, yminusx
     
     ;C# Code
     ;       DrawPixel(circleCenterX + xoff, circleCenterY - yoff);
     ; part 2 from angle 90 to 45 clockwise
-    DrawPixel color, xplusx, yminusy
+    paint xplusx, yminusy
     
     ;C# Code
     ;       DrawPixel(circleCenterX - xoff, circleCenterY - yoff); 
     ; part 3 from angle 90 to 135 counterclockwise
-    DrawPixel color, xminusx, yminusy
+    paint xminusx, yminusy
     
     ;C# Code
     ;        DrawPixel(circleCenterX - yoff, circleCenterY - xoff); 
     ; part 4 from angle 180 to 135 clockwise
-    DrawPixel color, xminusy, yminusx
+    paint xminusy, yminusx
     
     ;C# Code
     ;       DrawPixel(circleCenterX - yoff, circleCenterY + xoff); 
     ; part 5 from angle 180 to 225 counterclockwise
-    DrawPixel color, xminusy, yplusx
+    paint xminusy, yplusx
     
         ;C# Code
     ;       DrawPixel(circleCenterX - xoff, circleCenterY + yoff); 
     ; part 6 from angle 270 to 225 clockwise
-    DrawPixel color, xminusx, yplusy
+    paint xminusx, yplusy
         
     ;C# Code
     ;       DrawPixel(circleCenterX + xoff, circleCenterY + yoff); 
     ; part 7 from angle 270 to 315 counterclockwise
-    DrawPixel color, xplusx, yplusy
+    paint xplusx, yplusy
     
     
     ;C# Code
     ;       DrawPixel(circleCenterX + yoff, circleCenterY + xoff); 
     ; part 8 from angle 360 to 315 clockwise
-    DrawPixel color, xplusy, yplusx
-
+    paint xplusy, yplusx
     
     ;C# Code
     ;        balance = balance + xoff + xoff;
@@ -258,15 +261,6 @@ mov yplusx,  0
 mov yminusx,  0
 
 endm
-DrawPixel macro color, x, y
-    
-    mov cx, x  ; column  
-    mov dx, y  ; row  
-     
-    mov al, color  ; green
-    mov ah, 0ch ; put pixel
-    int 10h     
-endm
 save_vmode macro
     mov ah, 0Fh    ;Get current video mode
     int 10h		   ;
@@ -312,6 +306,117 @@ clear_row macro row
     mov dh, row
     mov dl, 79
     int 10h
+endm
+getDir macro x1, x2, y1, y2
+;local compX, compY changeX, xPlus1, xMinus1, yPlus1, yMinus1, _exit
+	compX:
+		mov ax, x1
+		cmp ax, x2
+		jl xPlus1
+		jnl xMinus1
+	compY:
+		mov bx, y1
+		cmp bx, y2
+		jl yPlus1
+		jnl yMinus1
+	xMinus1:
+		mov xChange, 1111111111111111b
+		jmp compY
+	xPlus1:
+		mov xChange, 1 
+		jmp compY
+	yMinus1:
+		mov yChange, 1111111111111111b 
+		jmp _exit
+	yPlus1:
+		mov yChange, 1 
+		jmp _exit
+	_exit:
+endm
+
+
+
+diagonal macro color, x1, x2, y1, y2
+	local comp, firstCoord, secondCoord, subX, subY, drawLoop, exit
+	comp:
+		cmp coordsGot, 1
+		je secondCoord
+	firstCoord:
+		mov ax, 03h ;INT 33,3 - Get Mouse Position(CX,DX) and Button Status(BX)
+		int 33h ;;CX = X || DX = Ys
+		mov firstX, cx
+		mov firstY, dx
+		inc coordsGot
+		jmp check
+	secondCoord:
+		mov ax, 03h ;INT 33,3 - Get Mouse Position(CX,DX) and Button Status(BX)
+		int 33h ;;CX = X || DX = Ys
+		mov secondX, cx
+		mov secondY, dx
+		getDir firstX, secondX, firstY, secondY
+		ignoreOrNo firstX, secondX
+		ignoreOrNo firstY, secondY
+	drawLoop:
+		paint firstX, firstY
+		mov ax, firstY
+		add ax, yChange
+		mov firstY, ax
+		mov ax, firstX
+		add ax, xChange
+		mov firstX, ax
+		cmp ax, secondX
+		jne drawLoop
+	exit:
+		mov coordsGot, 0
+		jmp check
+endm
+rectCheck macro
+	local comp, exit, firstcoord, secondcoord
+	comp:
+		cmp coordsGot, 1
+		je secondCoord
+	firstcoord:
+		mov ax, 03h ;INT 33,3 - Get Mouse Position(CX,DX) and Button Status(BX)
+		int 33h ;;CX = X || DX = Ys
+		mov firstX, cx
+		mov firstY, dx
+		inc coordsGot
+		jmp check
+	secondcoord:
+		
+		mov ax, 03h ;INT 33,3 - Get Mouse Position(CX,DX) and Button Status(BX)
+		int 33h ;;CX = X || DX = Ys
+		mov secondX, cx
+		mov secondY, dx
+		swapOrNo firstX, secondX ;;Refer to macro definition for explanation
+		swapOrNo firstY, secondY ;;Refer to macro definition for explanation
+		ignoreOrNo firstX, secondX ;;Refer to macro definition for explanation
+		ignoreOrNo firstY, secondY ;;Refer to macro definition for explanation
+		;
+		;========================DRAW=========================
+		;
+		push firstX
+		push secondX
+		push firstY
+		push secondY
+		sub firstX, 5
+		sub secondX, 5
+		sub firstY, 5
+		sub secondY, 5
+		pop secondY5
+		pop firstY5
+		pop secondX5
+		pop firstX5
+		rectangle fgcolor, firstX, secondX, firstY, firstY5
+		rectangle fgcolor, secondX, secondX5, firstY, secondY
+		rectangle fgcolor, firstX, secondX5, secondY, secondY5
+		rectangle fgcolor, firstX, firstX5, firstY, secondY5
+		add firstX, 5
+		add secondX, 5 ;;RESET THEIR VALUES
+		add firstY, 5
+		add secondY, 5
+	exit:
+		mov coordsGot, 0
 endm
 rectangle macro color, x1, x2, y1, y2
     local s, next
@@ -405,7 +510,7 @@ clear_row macro row
     int 10h
 endm
 get_input macro
-    local check, save, escape, adjust, bgup, bgdown, fgup, fgdown, clearAll, firstCoord, circle
+    local check, save, escape, adjust, bgup, bgdown, fgup, fgdown, clearAll, rect, circle, diagonAlly
 	escape:
         mov ah, 06h     ;;Check keyboard buffer for input
         mov dl, 255     ;Entry: DL = character (except FFh)
@@ -421,15 +526,15 @@ get_input macro
         je fgup
         cmp al, 4Bh     ;;Left  4Bh
         je fgdown       
-	cmp al, 8h		;;BackSpace
-	je clearAll	    ;;0Dh
-	cmp al, 63h		;;Circle C
-	je circle
-	cmp al, 6Ch     ;;firstCoord L
-	je firstCoord
-	cmp al, 74h
-	je secondCoord
-	jmp check
+		cmp al, 8h		;;BackSpace
+		je clearAll	    ;;0Dh
+		cmp al, 63h		;;Circle C
+		je circle
+		cmp al, 64h     ;;Diagonal DATASEG
+		je diagonAlly
+		cmp al, 6Ch     ;;firstCoord L
+		je rect
+		jmp check
 	clearAll: ;750 500 |||| 320 200
 		rectangle 0, 0, 750, 0, 500 ;;clear screen
 		jmp check
@@ -470,13 +575,13 @@ get_input macro
 		jmp check
 	;==============================================================================
 	;==============================================================================
-    firstCoord:
-		mov ax, 03h ;INT 33,3 - Get Mouse Position(CX,DX) and Button Status(BX)
-		int 33h ;;CX = X || DX = Ys
-		mov firstX, cx
-		mov firstY, dx
+	diagonAlly:
+		diagonal
 		jmp check
-		circle:
+    rect:
+		rectCheck
+		jmp check
+	circle:
 		mov ax, 03h ;INT 33,3 - Get Mouse Position(CX,DX) and Button Status(BX)
 		int 33h ;;CX = X || DX = Ys
 		mov x, cx
@@ -487,41 +592,8 @@ get_input macro
 		;mov y, dx ;;reset everything
 		jmp check
 		jmpToExit:
-		jmp exit
-    secondCoord:
-	mov ah, 06h     ;;Check keyboard buffer for input
-	mov dl, 255     ;Entry: DL = character (except FFh)
-	int 21h 		;Return: AL = character output (note to self)
-	cmp al, 6Ch		;shouldnt do anything special as the character is already L but it doesnt do anything wihtout it so here it stays.
-	mov ax, 03h ;INT 33,3 - Get Mouse Position(CX,DX) and Button Status(BX)
-	int 33h ;;CX = X || DX = Ys
-	mov secondX, cx
-	mov secondY, dx
-	swapOrNo firstX, secondX ;;Refer to macro definition for explanation
-	swapOrNo firstY, secondY ;;Refer to macro definition for explanation
-	ignoreOrNo firstX, secondX ;;Refer to macro definition for explanation
-	ignoreOrNo firstY, secondY ;;Refer to macro definition for explanation
-	push firstX
-	push secondX
-	push firstY
-	push secondY
-	sub firstX, 5
-	sub secondX, 5
-	sub firstY, 5
-	sub secondY, 5
-	pop secondY5
-	pop firstY5
-	pop secondX5
-	pop firstX5
-	rectangle fgcolor, firstX, secondX, firstY, firstY5
-	rectangle fgcolor, secondX, secondX5, firstY, secondY
-	rectangle fgcolor, firstX, secondX5, secondY, secondY5
-	rectangle fgcolor, firstX, firstX5, firstY, secondY5
-	add firstX, 5
-	add secondX, 5 ;;RESET THEIR VALUES
-	add firstY, 5
-	add secondY, 5
-	jmp check
+			jmp exit
+	
     check:          ;;Check for mouse input
         print_brush_color
         mov ax, 03h  ;INT33h, 3h  Get Mouse Position and Button Status
