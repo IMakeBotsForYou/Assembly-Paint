@@ -7,8 +7,8 @@ text   db "",10,13
 	db 'Background Color:    UP / DOWN',10,13
 	db 'Change Color:     RIGHT / LEFT',10,13
 	db 'Draw Circle At mouse:        C',10,13
-	db 'Set First Point              L',10,13
-	db 'Set Second Point/draw rect   T',10,13
+	db 'Set Corners/Draw Rectangle   L',10,13
+	db 'Set Points/draw diagonal     T',10,13
 	db 'Clear Screen         Backspace',10,13
 	db 'Exit Program:              ESC',10,13
 	db '                              ',10,13
