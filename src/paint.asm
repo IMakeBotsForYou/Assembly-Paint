@@ -7,9 +7,6 @@ bgcolor db 0 ;Default bg color is black.
 fgcolor db 4 ;Default brush color is red.
 fgtitle db ' Current Brush:$'
 include intro.asm
-;include second.asm
-;include first.asm
-coordsGot db 0
 firstX  dw 0
 secondX dw 10
 firstY  dw 0
