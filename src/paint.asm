@@ -1,6 +1,6 @@
 MODEL small
 STACk 64h
-
+P386 ;;Increase jump range
 DATASEG
 vmode db '$'
 bgcolor db 0 ;Default bg color is black.
@@ -414,7 +414,7 @@ get_input macro
         mov dl, 255     ;Entry: DL = character (except FFh)
         int 21h 		;Return: AL = character output (note to self)
         cmp al, 1Bh     ;;Esc = exit
-        je jmpToExit1
+        je exit
     adjust:
         cmp al, 48h     ;;Up 48h
         je bgup
@@ -427,11 +427,11 @@ get_input macro
 	cmp al, 8h		;;BackSpace
 	je clearAll	    ;;0Dh
 	cmp al, 63h		;;Circle C
-	je outOfRangeCircle
+	je circle
 	cmp al, 6Ch     ;;firstCoord L
-	je outOfRangeLine1
+	je firstCoord
 	cmp al, 74h
-	je outOfRangeLine2
+	je secondCoord
 	jmp check
 	clearAll: ;750 500 |||| 320 200
 		rectangle 0, 0, 750, 0, 500 ;;clear screen
@@ -461,14 +461,6 @@ get_input macro
         fbound1:
             mov [bx], 1
             jmp check
-	jmpToExit1:
-		jmp jmpToExit
-	outOfRangeCircle:
-		jmp circle ;;avoid jmp out of range err
-	outOfRangeLine1:
-		jmp firstCoord ;;avoid jmp out of range err
-	outOfRangeLine2:
-		jmp secondCoord ;;avoid jmp out of range err
     fgdown:
         mov bx, offset fgcolor
         mov ax, [bx]
@@ -482,23 +474,23 @@ get_input macro
 	;==============================================================================
 	;==============================================================================
     firstCoord:
-	mov ax, 03h ;INT 33,3 - Get Mouse Position(CX,DX) and Button Status(BX)
-	int 33h ;;CX = X || DX = Ys
-	mov firstX, cx
-	mov firstY, dx
-	jmp check
-    circle:
-	mov ax, 03h ;INT 33,3 - Get Mouse Position(CX,DX) and Button Status(BX)
-	int 33h ;;CX = X || DX = Ys
-	mov x, cx
-	mov y, dx ;;reset everything
-	mov r, 20              
-	DrawCircle fgcolor, x, y, r
-	reset
-	;mov y, dx ;;reset everything
-	jmp check
-    jmpToExit:
-	jmp exit
+		mov ax, 03h ;INT 33,3 - Get Mouse Position(CX,DX) and Button Status(BX)
+		int 33h ;;CX = X || DX = Ys
+		mov firstX, cx
+		mov firstY, dx
+		jmp check
+		circle:
+		mov ax, 03h ;INT 33,3 - Get Mouse Position(CX,DX) and Button Status(BX)
+		int 33h ;;CX = X || DX = Ys
+		mov x, cx
+		mov y, dx ;;reset everything
+		mov r, 20              
+		DrawCircle fgcolor, x, y, r
+		reset
+		;mov y, dx ;;reset everything
+		jmp check
+		jmpToExit:
+		jmp exit
     secondCoord:
 	mov ah, 06h     ;;Check keyboard buffer for input
 	mov dl, 255     ;Entry: DL = character (except FFh)
