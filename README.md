@@ -55,9 +55,7 @@ Change brush color: `Right arrow`/`Left arrow`
 Draw a circle, whose center is the position of the mouse: `C`
 
 ### Rectangle
-To set the coordinates of the first corner: `L`\
-To set the coordinates of the second corner and draw the rectangle: `T`
-
+Set corners for rectangle, and draw it. `L`
 ### Clear screen
 To clear the screen:`BackSpace`
 
