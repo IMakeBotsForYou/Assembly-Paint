@@ -7,8 +7,6 @@ bgcolor db 0 ;Default bg color is black.
 fgcolor db 4 ;Default brush color is red.
 fgtitle db ' Current Brush:$'
 include intro.asm
-;include second.asm
-;include first.asm
 firstX  dw 0
 secondX dw 10
 firstY  dw 0
@@ -18,6 +16,7 @@ secondX5 dw 10
 firstY5  dw 0
 secondY5 dw 10
 coordsGot db 0
+skipToSecond db 0
 yChange dw ?
 xChange dw ?
 ;========================== CIRCLE 
@@ -74,18 +73,6 @@ swapOrNo macro x1, x2
 		pop x1
 	dont:
 endm
-;changeOrNo macro x1, x2
-;local comp, exit, addToIt
-;	comp:
-;		mov ax, x1
-;		cmp ax, x2
-;		jne exit
-;		je addToIt
-;	addToIt:
-;		add x1, 15
-;	exit:
-;endm
-
 DrawCircle macro color, circleCenterX, circleCenterY, radius
     ;C# Code
 ;         int balance;
@@ -277,6 +264,7 @@ set_vmode macro v
 endm
 
 update_bg macro color
+
     mov ah, 0Bh
     mov bl, color
 	
@@ -308,7 +296,7 @@ clear_row macro row
     int 10h
 endm
 getDir macro x1, x2, y1, y2
-;local compX, compY changeX, xPlus1, xMinus1, yPlus1, yMinus1, _exit
+local compX, compY, changeX, xPlus1, xMinus1, yPlus1, yMinus1, _exit
 	compX:
 		mov ax, x1
 		cmp ax, x2
@@ -334,12 +322,12 @@ getDir macro x1, x2, y1, y2
 	_exit:
 endm
 
-
-
-diagonal macro color, x1, x2, y1, y2
+diagonal macro
 	local comp, firstCoord, secondCoord, subX, subY, drawLoop, exit
 	comp:
 		cmp coordsGot, 1
+		je secondCoord
+		cmp skipToSecond, 1
 		je secondCoord
 	firstCoord:
 		mov ax, 03h ;INT 33,3 - Get Mouse Position(CX,DX) and Button Status(BX)
@@ -357,6 +345,7 @@ diagonal macro color, x1, x2, y1, y2
 		ignoreOrNo firstX, secondX
 		ignoreOrNo firstY, secondY
 	drawLoop:
+		mov skipToSecond, 0
 		paint firstX, firstY
 		mov ax, firstY
 		add ax, yChange
@@ -375,6 +364,8 @@ rectCheck macro
 	comp:
 		cmp coordsGot, 1
 		je secondCoord
+		cmp skipToSecond, 0
+		jne secondCoord
 	firstcoord:
 		mov ax, 03h ;INT 33,3 - Get Mouse Position(CX,DX) and Button Status(BX)
 		int 33h ;;CX = X || DX = Ys
@@ -383,7 +374,7 @@ rectCheck macro
 		inc coordsGot
 		jmp check
 	secondcoord:
-		
+		mov skipToSecond, 0
 		mov ax, 03h ;INT 33,3 - Get Mouse Position(CX,DX) and Button Status(BX)
 		int 33h ;;CX = X || DX = Ys
 		mov secondX, cx
@@ -437,6 +428,9 @@ endm
 
 print_brush_color macro
     ;;Update 'current brush color' notification
+	;; show fgtitle, 0, 3 ;;Make space for toolbar
+	;; rectangle [bx], 130, 145, 49, 64
+	;;Make space for toolbar
     show fgtitle, 0, 0
     mov bx, offset fgcolor
     rectangle [bx], 130, 145, 0, 15
@@ -510,7 +504,7 @@ clear_row macro row
     int 10h
 endm
 get_input macro
-    local check, save, escape, adjust, bgup, bgdown, fgup, fgdown, clearAll, rect, circle, diagonAlly
+    local check, save, escape, adjust, bgup, bgdown, fgup, fgdown, clearAll, rect, circle, diagonAlly, diagonAllySkip, rectSkip
 	escape:
         mov ah, 06h     ;;Check keyboard buffer for input
         mov dl, 255     ;Entry: DL = character (except FFh)
@@ -530,13 +524,17 @@ get_input macro
 		je clearAll	    ;;0Dh
 		cmp al, 63h		;;Circle C
 		je circle
-		cmp al, 64h     ;;Diagonal DATASEG
+		cmp al, 64h     ;;Diagonal D
 		je diagonAlly
+		cmp al, 30h     ;;Diagonal SKIP 0
+		je diagonAllySkip
 		cmp al, 6Ch     ;;firstCoord L
 		je rect
+		cmp al, 3Bh     ;;Diagonal SKIP ;
+		je rectSkip
 		jmp check
-	clearAll: ;750 500 |||| 320 200
-		rectangle 0, 0, 750, 0, 500 ;;clear screen
+	clearAll: ;640 480 |||| 320 200
+		rectangle 0, 0, 640, 0, 480 ;;clear screen
 		jmp check
     bgup:               ;;Move to next real bg color
         mov bx, offset bgcolor
@@ -552,7 +550,7 @@ get_input macro
         mov [bx], ax
         update_bg al
         jmp check
-    fgup:               ;;Move to next real fg color aka paint brush color
+     fgup:               ;;Move to next real fg color aka paint brush color
         mov bx, offset fgcolor
         mov ax, [bx]
         inc al
@@ -570,13 +568,22 @@ get_input macro
         mov [bx], ax
         cmp al, 0
         je fbound2
+        jmp check
         fbound2:
             mov [bx], 15
+            jmp check
+	;==============================================================================
+	;==============================================================================
+	diagonAllySkip:
+		mov skipToSecond, 1
+	    diagonal
 		jmp check
-	;==============================================================================
-	;==============================================================================
 	diagonAlly:
 		diagonal
+		jmp check
+	rectSkip:
+		mov skipToSecond, 1
+		rectCheck
 		jmp check
     rect:
 		rectCheck
