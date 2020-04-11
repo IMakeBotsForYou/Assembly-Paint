@@ -45,7 +45,7 @@ then press f9 to run the program.
 ## Functionality
 ![Instructions][1]
 
-[1]: https://cdn.discordapp.com/attachments/348067542881009665/696687324712534097/unknown.png
+[1]: https://cdn.discordapp.com/attachments/348067542881009665/698646390108192788/unknown.png
 Screen after running the program.
 ### Colors
 Navigating between the background colors: `Up arrow`/ `Down arrow`
