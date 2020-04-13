@@ -1,12 +1,14 @@
-MODEL small
+MODEL large
 STACk 64h
 P386 ;;Increase jump range
 DATASEG
 vmode db '$'
 bgcolor db 0 ;Default bg color is black.
 fgcolor db 4 ;Default brush color is red.
-fgtitle db ' Current Brush:$'
+fgtitle db 'Current Brush:$'
 include intro.asm
+;include show.asm
+showed db 0
 firstX  dw 0
 secondX dw 10
 firstY  dw 0
@@ -19,6 +21,8 @@ coordsGot db 0
 skipToSecond db 0
 yChange dw ?
 xChange dw ?
+lastCmd db 'Last Key: $'
+lastCommand db ' $'
 ;========================== CIRCLE 
 x dw ? ; center x --- just experimenting with circles.
 y dw ? ; center y
@@ -38,7 +42,11 @@ xminusy dw 0
 yplusx dw 0
 yminusx dw 0
 ;========================== CIRCLE 
+; SEGMENT FILEBUF para public  'DATA'  
+        ; DB 3021 DUP(?)
+; ENDS
 CODESEG
+
 ignoreOrNo macro x1, x2
 local comp, ignore, no
 comp:	
@@ -74,6 +82,7 @@ swapOrNo macro x1, x2
 	dont:
 endm
 DrawCircle macro color, circleCenterX, circleCenterY, radius
+local balance_negative, balance_positive, end_drawing, draw_circle_loop
     ;C# Code
 ;         int balance;
 ;         int xoff;
@@ -233,20 +242,19 @@ Sub3NumbersAndAssign macro d, a, b, x
 endm
 ;========================== CIRCLE 
 reset macro
-mov balance, 0
-mov xoff,  0
-mov yoff,  0 
-    
-mov xplusx,  0
-mov xminusx,  0
-mov yplusy,  0
-mov yminusy,  0
-    
-mov xplusy,  0
-mov xminusy,  0
-mov yplusx,  0
-mov yminusx,  0
-
+	mov balance, 0
+	mov xoff,  0
+	mov yoff,  0 
+		
+	mov xplusx,  0
+	mov xminusx,  0
+	mov yplusy,  0
+	mov yminusy,  0
+		
+	mov xplusy,  0
+	mov xminusy,  0
+	mov yplusx,  0
+	mov yminusx,  0
 endm
 save_vmode macro
     mov ah, 0Fh    ;Get current video mode
@@ -285,7 +293,12 @@ show macro string, x, y
     mov dx, offset string
     int 21h
 endm
-
+showc macro string, x, y
+    cursor x, y
+    mov ah, 02h
+    mov dl, string
+    int 21h
+endm
 clear_row macro row
     mov ah, 06h
     mov al, 0
@@ -321,7 +334,9 @@ local compX, compY, changeX, xPlus1, xMinus1, yPlus1, yMinus1, _exit
 		jmp _exit
 	_exit:
 endm
+ctrlZ macro
 
+endm
 diagonal macro
 	local comp, firstCoord, secondCoord, subX, subY, drawLoop, exit
 	comp:
@@ -360,7 +375,7 @@ diagonal macro
 		jmp check
 endm
 rectCheck macro
-	local comp, exit, firstcoord, secondcoord
+	local comp, exit, firstcoord, secondcoord, draw
 	comp:
 		cmp coordsGot, 1
 		je secondCoord
@@ -386,6 +401,7 @@ rectCheck macro
 		;
 		;========================DRAW=========================
 		;
+	draw:
 		push firstX
 		push secondX
 		push firstY
@@ -428,13 +444,20 @@ endm
 
 print_brush_color macro
     ;;Update 'current brush color' notification
-	;; show fgtitle, 0, 3 ;;Make space for toolbar
-	;; rectangle [bx], 130, 145, 49, 64
-	;;Make space for toolbar
+	; show fgtitle, 0, 3 ;;Make space for toolbar
+	; mov bx, offset fgcolor
+	; rectangle [bx], 130, 145, 49, 64
+	
     show fgtitle, 0, 0
     mov bx, offset fgcolor
-    rectangle [bx], 130, 145, 0, 15
+    rectangle [bx], 125, 140, 0, 15
 endm
+
+print_last_command macro
+	show lastCmd, 0, 1
+    showc lastCommand, 0, 2
+endm
+
 paint macro x, y
     ;i was having trouble with smart solution so I did something stupid
     mov bx, offset fgcolor
@@ -485,7 +508,7 @@ print_intro macro
     mov ah, 00h
     int 16h
 endm
-init proc
+init proc near
     save_vmode
     set_vmode 12h
 	print_intro
@@ -503,12 +526,15 @@ clear_row macro row
     mov dl, 79
     int 10h
 endm
+
 get_input macro
-    local check, save, escape, adjust, bgup, bgdown, fgup, fgdown, clearAll, rect, circle, diagonAlly, diagonAllySkip, rectSkip
+    local check, save, help, escape, adjust, bgup, bgdown, fgup, fgdown, clearAll, rect, circle, diagonAlly, diagonAllySkip, rectSkip
 	escape:
         mov ah, 06h     ;;Check keyboard buffer for input
         mov dl, 255     ;Entry: DL = character (except FFh)
         int 21h 		;Return: AL = character output (note to self)
+		mov lastCommand, al
+		call lstcmd
         cmp al, 1Bh     ;;Esc = exit
         je exit
     adjust:
@@ -522,18 +548,26 @@ get_input macro
         je fgdown       
 		cmp al, 8h		;;BackSpace
 		je clearAll	    ;;0Dh
-		cmp al, 63h		;;Circle C
+		cmp al, 'c'		;;Circle C
 		je circle
-		cmp al, 64h     ;;Diagonal D
+		cmp al, 'd'     ;;Diagonal D
 		je diagonAlly
-		cmp al, 30h     ;;Diagonal SKIP 0
+		cmp al, '0'     ;;Diagonal SKIP 0
 		je diagonAllySkip
-		cmp al, 6Ch     ;;firstCoord L
+		cmp al, 'l'     ;;firstCoord L
 		je rect
-		cmp al, 3Bh     ;;Diagonal SKIP ;
+		cmp al, ';'     ;;Diagonal SKIP ;
 		je rectSkip
+		cmp al, 'h'     ;;help
+		je help
+		cmp al, 'z'     ;;CTRL Z
+		jmp _ctrlz
+		jmp check
+	help:
+		print_intro
 		jmp check
 	clearAll: ;640 480 |||| 320 200
+		
 		rectangle 0, 0, 640, 0, 480 ;;clear screen
 		jmp check
     bgup:               ;;Move to next real bg color
@@ -550,8 +584,10 @@ get_input macro
         mov [bx], ax
         update_bg al
         jmp check
+	_ctrlz:	
+			jmp check
      fgup:               ;;Move to next real fg color aka paint brush color
-        mov bx, offset fgcolor
+		mov bx, offset fgcolor
         mov ax, [bx]
         inc al
         mov [bx], ax
@@ -562,7 +598,8 @@ get_input macro
             mov [bx], 1
             jmp check
     fgdown:
-        mov bx, offset fgcolor
+
+		mov bx, offset fgcolor
         mov ax, [bx]
         dec al
         mov [bx], ax
@@ -600,9 +637,8 @@ get_input macro
 		jmp check
 		jmpToExit:
 			jmp exit
-	
     check:          ;;Check for mouse input
-        print_brush_color
+		print_brush_color
         mov ax, 03h  ;INT33h, 3h  Get Mouse Position and Button Status
         int 33h ;INT 33 - Mouse Function Calls
         cmp bx, 1
@@ -610,11 +646,18 @@ get_input macro
         jmp escape
     save:           ;;Exit when we have coordinates of where mouse was pressed
         dec dx
+	lstcmd:
+		cmp lastCommand, 0b
+		jne p
+		je check
+	p:
+		print_last_command
+		jmp adjust
 endm
-draw proc
+draw proc near
     check:
         get_input
-	    mov ax, 03h
+		mov ax, 03h
 	    int 33h
         paint cx, dx
         jmp check
@@ -624,9 +667,10 @@ start:
     mov ax, @data
     mov ds, ax
     call init
+	
 	mov ah, 00h ;;check if theres input, then call Draw.
-    int 16h
-    call draw
+	int 16h
+	call draw
     exit:
         mov bx, offset vmode    ;restore video mode on exit
         mov dl, [bx]
