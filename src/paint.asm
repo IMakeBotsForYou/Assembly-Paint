@@ -21,7 +21,10 @@ coordsGot db 0
 skipToSecond db 0
 yChange dw ?
 xChange dw ?
+sSize dw 20
 lastCmd db 'Last Key: $'
+brushSize db 5
+brushSizeText db 'Brush Size: $'
 lastCommand db ' $'
 ;========================== CIRCLE 
 x dw ? ; center x --- just experimenting with circles.
@@ -334,9 +337,6 @@ local compX, compY, changeX, xPlus1, xMinus1, yPlus1, yMinus1, _exit
 		jmp _exit
 	_exit:
 endm
-ctrlZ macro
-
-endm
 diagonal macro
 	local comp, firstCoord, secondCoord, subX, subY, drawLoop, exit
 	comp:
@@ -425,6 +425,41 @@ rectCheck macro
 	exit:
 		mov coordsGot, 0
 endm
+square macro x
+	mov ax, 03h ;INT 33,3 - Get Mouse Position(CX,DX) and Button Status(BX)
+	int 33h ;;CX = X || DX = Ys
+	sub cx, x
+	sub dx, x
+	mov firstX, cx
+	mov firstY, dx
+	add cx, x
+	add cx, x
+	add dx, x
+	add dx, x
+	mov secondY, dx
+	mov secondX, cx
+	push firstX
+	push secondX
+	push firstY
+	push secondY
+	sub firstX, 5
+	sub secondX, 5
+	sub firstY, 5
+	sub secondY, 5
+	pop secondY5
+	pop firstY5
+	pop secondX5
+	pop firstX5
+	rectangle fgcolor, firstX, secondX, firstY, firstY5
+	rectangle fgcolor, secondX, secondX5, firstY, secondY
+	rectangle fgcolor, firstX, secondX5, secondY, secondY5
+	rectangle fgcolor, firstX, firstX5, firstY, secondY5
+	add firstX, 5
+	add secondX, 5 ;;RESET THEIR VALUES
+	add firstY, 5
+	add secondY, 5
+endm
+
 rectangle macro color, x1, x2, y1, y2
     local s, next
     mov dx, y1
@@ -448,19 +483,26 @@ print_brush_color macro
 	; mov bx, offset fgcolor
 	; rectangle [bx], 130, 145, 49, 64
 	
-    show fgtitle, 0, 0
+    show fgtitle, 1, 0
     mov bx, offset fgcolor
     rectangle [bx], 125, 140, 0, 15
 endm
 
 print_last_command macro
-	show lastCmd, 0, 1
-    showc lastCommand, 0, 2
+local comp, exit
+comp:
+	cmp lastCommand, 0
+	je exit
+		show lastCmd, 0, 1
+		showc lastCommand, 10, 1
+	exit:
 endm
 
 paint macro x, y
     ;i was having trouble with smart solution so I did something stupid
-    mov bx, offset fgcolor
+    ; mov bx, offset fgcolor
+    ; mov ax, [bx]
+	 mov bx, offset fgcolor
     mov ax, [bx]
 
     mov ah, 0Ch			;Write graphics pixel
@@ -528,13 +570,12 @@ clear_row macro row
 endm
 
 get_input macro
-    local check, save, help, escape, adjust, bgup, bgdown, fgup, fgdown, clearAll, rect, circle, diagonAlly, diagonAllySkip, rectSkip
+    local check, save, help, escape, adjust, bdown, cup, cdown, bgdown, fgup, fgdown, clearAll, rect, circle, diagonAlly, diagonAllySkip, rectSkip, squareAroundMouse
 	escape:
         mov ah, 06h     ;;Check keyboard buffer for input
         mov dl, 255     ;Entry: DL = character (except FFh)
         int 21h 		;Return: AL = character output (note to self)
 		mov lastCommand, al
-		call lstcmd
         cmp al, 1Bh     ;;Esc = exit
         je exit
     adjust:
@@ -545,7 +586,15 @@ get_input macro
         cmp al, 4Dh     ;;Right 4Dh
         je fgup
         cmp al, 4Bh     ;;Left  4Bh
-        je fgdown       
+        je fgdown   
+		cmp al, '-'
+		je cdown
+		cmp al, '='
+		je cup
+		cmp al, '['
+		je sup
+		cmp al, ']'
+		je sdown
 		cmp al, 8h		;;BackSpace
 		je clearAll	    ;;0Dh
 		cmp al, 'c'		;;Circle C
@@ -560,15 +609,28 @@ get_input macro
 		je rectSkip
 		cmp al, 'h'     ;;help
 		je help
-		cmp al, 'z'     ;;CTRL Z
-		jmp _ctrlz
+		cmp al, 's'     ;;square
+		je squareAroundMouse
 		jmp check
 	help:
 		print_intro
 		jmp check
 	clearAll: ;640 480 |||| 320 200
-		
 		rectangle 0, 0, 640, 0, 480 ;;clear screen
+		jmp check
+	cup:
+		inc r
+		jmp check
+	cdown:
+		dec r
+		jmp check
+	sup:
+		add sSize, 5
+		jmp check
+	sdown:
+		cmp sSize, 5
+		jng check
+		sub sSize, 5 
 		jmp check
     bgup:               ;;Move to next real bg color
         mov bx, offset bgcolor
@@ -584,9 +646,10 @@ get_input macro
         mov [bx], ax
         update_bg al
         jmp check
-	_ctrlz:	
+	squareAroundMouse:	
+			square sSize
 			jmp check
-     fgup:               ;;Move to next real fg color aka paint brush color
+    fgup:               ;;Move to next real fg color aka paint brush color
 		mov bx, offset fgcolor
         mov ax, [bx]
         inc al
@@ -629,30 +692,21 @@ get_input macro
 		mov ax, 03h ;INT 33,3 - Get Mouse Position(CX,DX) and Button Status(BX)
 		int 33h ;;CX = X || DX = Ys
 		mov x, cx
-		mov y, dx ;;reset everything
-		mov r, 20              
+		mov y, dx ;;reset everything         
 		DrawCircle fgcolor, x, y, r
 		reset
 		;mov y, dx ;;reset everything
 		jmp check
-		jmpToExit:
-			jmp exit
     check:          ;;Check for mouse input
 		print_brush_color
+		print_last_command
         mov ax, 03h  ;INT33h, 3h  Get Mouse Position and Button Status
         int 33h ;INT 33 - Mouse Function Calls
         cmp bx, 1
         je save
         jmp escape
-    save:           ;;Exit when we have coordinates of where mouse was pressed
+	save:           ;;Exit when we have coordinates of where mouse was pressed
         dec dx
-	lstcmd:
-		cmp lastCommand, 0b
-		jne p
-		je check
-	p:
-		print_last_command
-		jmp adjust
 endm
 draw proc near
     check:
