@@ -591,9 +591,9 @@ get_input macro
 		je cdown
 		cmp al, '='
 		je cup
-		cmp al, '['
-		je sup
 		cmp al, ']'
+		je sup
+		cmp al, '['
 		je sdown
 		cmp al, 8h		;;BackSpace
 		je clearAll	    ;;0Dh
