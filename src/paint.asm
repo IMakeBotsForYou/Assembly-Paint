@@ -613,6 +613,10 @@ get_input macro
 		je squareAroundMouse
 		jmp check
 	help:
+		push ax
+		mov ax, 2                  ;hide mouse
+		int 33h
+		pop ax
 		print_intro
 		jmp check
 	clearAll: ;640 480 |||| 320 200
@@ -647,6 +651,10 @@ get_input macro
         update_bg al
         jmp check
 	squareAroundMouse:	
+			push ax
+			mov ax, 2                  ;hide mouse
+			int 33h
+			pop ax
 			square sSize
 			jmp check
     fgup:               ;;Move to next real fg color aka paint brush color
@@ -675,20 +683,41 @@ get_input macro
 	;==============================================================================
 	;==============================================================================
 	diagonAllySkip:
+		push ax
+		mov ax, 2                  ;hide mouse
+		int 33h
+		pop ax
 		mov skipToSecond, 1
 	    diagonal
 		jmp check
 	diagonAlly:
+		push ax
+		mov ax, 2                  ;hide mouse
+		int 33h
+		pop ax
 		diagonal
 		jmp check
 	rectSkip:
+		push ax
+		mov ax, 2                  ;hide mouse
+		int 33h
+		pop ax
 		mov skipToSecond, 1
 		rectCheck
 		jmp check
     rect:
+		push ax
+		mov ax, 2                  ;hide mouse
+		int 33h
+		pop ax
 		rectCheck
 		jmp check
 	circle:
+		push ax
+		mov ax, 2                  ;hide mouse
+		int 33h
+		pop ax
+		
 		mov ax, 03h ;INT 33,3 - Get Mouse Position(CX,DX) and Button Status(BX)
 		int 33h ;;CX = X || DX = Ys
 		mov x, cx
@@ -698,6 +727,8 @@ get_input macro
 		;mov y, dx ;;reset everything
 		jmp check
     check:          ;;Check for mouse input
+		mov ax, 1                   ;show mouse
+		int 33h
 		print_brush_color
 		print_last_command
         mov ax, 03h  ;INT33h, 3h  Get Mouse Position and Button Status
