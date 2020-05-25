@@ -77,5 +77,5 @@ The flow chart demonstrates how the code jumps between processes and how it func
 **Hat tip to all contributors, whose code snippets and help are tremendously appreciated**
 * The [github community](https://github.community/).
 * Omer Shoshani (Yod 9)
-* Guy Ofir (Yod 9)
+* Guy Ofek (Yod 9)
 * Dvir Hamdi (Yod 8)
