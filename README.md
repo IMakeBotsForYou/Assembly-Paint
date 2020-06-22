@@ -11,6 +11,8 @@ This page is not up to date-This notice will be deleted once it is.
     - [Colors](#CiColorsrcle)
     - [Circle](#Circle)
     - [Rectangle](#Rectangle)
+    - [Vertical](#vertical)
+    - [Square](#Square)
     - [Clear screen](#Clear-screen)
     - [Exit](#Exit)
 - [Flow Chart](#Flow-Chart)
