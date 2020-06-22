@@ -60,11 +60,11 @@ Draw a circle, whose center is the position of the mouse: `C`\
 Inc/Dec size of circle  `-`/`+`
 ### Rectangle
 Set corners for rectangle, and draw it. `L`\
-If you already have a first corner/point, you can also press ';'
+If you already have a first corner/point, you can also press `;`
 
 ### Diagonal
 Set ends of diagonal line, and draw it. `D`\
-If you already have a first corner/point, you can also press '0'
+If you already have a first corner/point, you can also press `0`
 
 ### Vertical
 Set corners for rectangle, and draw it. `V`\
