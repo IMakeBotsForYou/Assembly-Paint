@@ -23,8 +23,8 @@ yChange dw ?
 xChange dw ?
 sSize dw 20
 lastCmd db 'Last Key: $'
-brushSize db 5
-brushSizeText db 'Brush Size: $'
+;brushSize db 5
+;brushSizeText db 'Brush Size: $'
 lastCommand db ' $'
 ;========================== CIRCLE
 x dw ? ; center x --- just experimenting with circles.
