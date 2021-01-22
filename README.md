@@ -1,6 +1,6 @@
 # DanPaint
 
-Dan Lvov's final project for programming in the Assembly8086 language.\
+Dan L's final project for programming in the Assembly8086 language.\
 This is a simplified version of [MS Paint](https://support.microsoft.com/en-us/help/4027410/windows-10-open-microsoft-paint).
 This page is not up to date-This notice will be deleted once it is.
 
